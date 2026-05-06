@@ -5,11 +5,17 @@ from PIL import Image, ImageDraw, ImageFont
 
 
 DEFAULT_FONT_CANDIDATES = [
+    "/AstrBot/data/plugin_data/astrbot_plugin_bililens/fonts/HiraginoSansGB.ttc",
+    "/AstrBot/data/plugin_data/astrbot_plugin_bililens/fonts/NotoSansCJK-Regular.ttc",
     "/System/Library/Fonts/PingFang.ttc",
     "/System/Library/Fonts/STHeiti Light.ttc",
+    "/System/Library/Fonts/STHeiti Medium.ttc",
+    "/System/Library/Fonts/Hiragino Sans GB.ttc",
     "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
     "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",
-    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.otf",
+    "/usr/share/fonts/truetype/wqy/wqy-microhei.ttc",
+    "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc",
 ]
 
 

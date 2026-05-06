@@ -61,11 +61,19 @@ B站视频总结是一个 AstrBot B站视频总结插件。它参考常见的视
 
 ## Docker 字体提示
 
-Pillow 渲染中文需要系统字体。如果 Docker 里中文显示成方块，安装或挂载 Noto CJK 字体，然后在配置里填写 `font_path`，例如：
+Pillow 渲染中文需要中文字体。如果 Docker 里中文显示成方块，安装或挂载 Noto CJK 字体，然后在配置里填写 `font_path`，例如：
 
 ```text
 /usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc
 ```
+
+当前 Docker 部署也可以把字体放到插件持久化数据目录：
+
+```text
+/AstrBot/data/plugin_data/astrbot_plugin_bililens/fonts/HiraginoSansGB.ttc
+```
+
+插件会优先尝试这个路径，仓库不会内置字体文件。
 
 ## 系统依赖
 
