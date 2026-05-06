@@ -125,3 +125,7 @@ AstrBot/data/plugins/astrbot_plugin_bilibili_video_summary
 - 使用 `bcut` ASR 时，音频会上传到必剪/B站相关服务。
 - 使用 `openai_compatible` ASR 时，音频会上传到你配置的 ASR 服务。
 - B站网页接口和必剪 ASR 都不是稳定商业 API，长期生产使用建议准备 OpenAI-compatible ASR 作为备用。
+
+## License
+
+本项目以 GNU Affero General Public License v3.0 or later 授权，详见 `LICENSE`。
