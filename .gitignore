@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.DS_Store
+
+# Runtime data created by AstrBot or local tests.
+data/
+audio/
+images/
+cookies.txt
+bili_cookies.json
+bili_login_qr_*.png

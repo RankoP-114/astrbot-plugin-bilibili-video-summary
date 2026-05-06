@@ -1,0 +1,219 @@
+{
+  "debug_mode": {
+    "description": "启用调试日志",
+    "type": "bool",
+    "default": false,
+    "hint": "开启后会向 AstrBot 日志输出更详细的插件运行过程"
+  },
+  "llm_provider": {
+    "description": "LLM 提供者",
+    "type": "string",
+    "default": "astrbot",
+    "options": ["astrbot", "openai_compatible"],
+    "hint": "astrbot 使用当前会话/默认模型；openai_compatible 会请求 llm_api_base/chat/completions"
+  },
+  "llm_api_base": {
+    "description": "OpenAI 兼容 LLM API 地址",
+    "type": "string",
+    "default": "",
+    "hint": "例如 https://api.openai.com/v1，仅 llm_provider=openai_compatible 时需要"
+  },
+  "llm_api_key": {
+    "description": "OpenAI 兼容 LLM API Key",
+    "type": "string",
+    "default": "",
+    "hint": "仅 llm_provider=openai_compatible 时需要"
+  },
+  "llm_model": {
+    "description": "OpenAI 兼容 LLM 模型",
+    "type": "string",
+    "default": "gpt-4o-mini"
+  },
+  "asr_provider": {
+    "description": "ASR 提供者",
+    "type": "string",
+    "default": "bcut",
+    "options": ["bcut", "openai_compatible"],
+    "hint": "bcut 使用必剪云端字幕识别；openai_compatible 使用 /audio/transcriptions 格式接口"
+  },
+  "asr_api_base": {
+    "description": "OpenAI 兼容 ASR API 地址",
+    "type": "string",
+    "default": "",
+    "hint": "例如 https://api.openai.com/v1，仅 asr_provider=openai_compatible 时需要"
+  },
+  "asr_api_key": {
+    "description": "OpenAI 兼容 ASR API Key",
+    "type": "string",
+    "default": "",
+    "hint": "仅 asr_provider=openai_compatible 时需要"
+  },
+  "asr_model": {
+    "description": "ASR 模型",
+    "type": "string",
+    "default": "whisper-1"
+  },
+  "asr_endpoint": {
+    "description": "ASR 转写接口路径",
+    "type": "string",
+    "default": "/audio/transcriptions",
+    "hint": "会拼接在 asr_api_base 后面"
+  },
+  "asr_language": {
+    "description": "ASR 语言提示",
+    "type": "string",
+    "default": "zh",
+    "hint": "留空则不传 language"
+  },
+  "asr_timeout_seconds": {
+    "description": "ASR 超时时间（秒）",
+    "type": "int",
+    "default": 600,
+    "min": 60,
+    "max": 3600
+  },
+  "bilibili_cookie": {
+    "description": "B站 Cookie",
+    "type": "text",
+    "default": "",
+    "hint": "可选。也可以在聊天中发送 /B站登录 扫码获取 Cookie"
+  },
+  "allow_non_admin_commands": {
+    "description": "允许非 AstrBot 管理员使用扩展功能",
+    "type": "bool",
+    "default": false,
+    "hint": "/B站视频总结 不受此限制；/B站登录 始终仅 AstrBot 管理员可用"
+  },
+  "output_image": {
+    "description": "以图片形式发送总结",
+    "type": "bool",
+    "default": true,
+    "hint": "使用 Pillow 纯 Python 渲染 PNG，不依赖 wkhtmltopdf"
+  },
+  "generated_retention_hours": {
+    "description": "生成文件保留时间（小时）",
+    "type": "int",
+    "default": 72,
+    "min": 1,
+    "max": 720,
+    "hint": "用于清理字幕缓存和总结图片"
+  },
+  "generated_max_files": {
+    "description": "生成文件最多保留数量",
+    "type": "int",
+    "default": 200,
+    "min": 20,
+    "max": 2000,
+    "hint": "分别限制音频缓存目录和图片目录的保留文件数"
+  },
+  "font_path": {
+    "description": "图片渲染字体路径",
+    "type": "string",
+    "default": "",
+    "hint": "Docker 中如果中文显示异常，可挂载 NotoSansCJK 并填写字体路径"
+  },
+  "image_width": {
+    "description": "总结图片宽度",
+    "type": "int",
+    "default": 1400,
+    "min": 900,
+    "max": 2200
+  },
+  "note_style": {
+    "description": "总结风格",
+    "type": "string",
+    "default": "professional",
+    "options": ["concise", "detailed", "professional"]
+  },
+  "enable_timestamps": {
+    "description": "启用章节时间戳",
+    "type": "bool",
+    "default": true
+  },
+  "enable_ai_summary": {
+    "description": "启用末尾 AI 总结",
+    "type": "bool",
+    "default": true
+  },
+  "max_note_length": {
+    "description": "总结最大字符数",
+    "type": "int",
+    "default": 6000,
+    "min": 1000,
+    "max": 20000
+  },
+  "download_quality": {
+    "description": "音频下载质量",
+    "type": "string",
+    "default": "fast",
+    "options": ["fast", "medium", "high"],
+    "hint": "fast=32kbps, medium=64kbps, high=128kbps"
+  },
+  "enable_auto_detect": {
+    "description": "启用 B站链接自动识别",
+    "type": "bool",
+    "default": false
+  },
+  "detect_auto_summary": {
+    "description": "自动识别后直接生成总结",
+    "type": "bool",
+    "default": false,
+    "hint": "开启会自动消耗 LLM/ASR 额度"
+  },
+  "detect_show_cover": {
+    "description": "识别推送显示封面",
+    "type": "bool",
+    "default": true
+  },
+  "detect_show_uploader": {
+    "description": "识别推送显示 UP 主",
+    "type": "bool",
+    "default": true
+  },
+  "detect_show_desc": {
+    "description": "识别推送显示简介",
+    "type": "bool",
+    "default": true
+  },
+  "detect_show_pubtime": {
+    "description": "识别推送显示发布时间",
+    "type": "bool",
+    "default": true
+  },
+  "detect_show_stats": {
+    "description": "识别推送显示播放数据",
+    "type": "bool",
+    "default": true
+  },
+  "enable_auto_push": {
+    "description": "启用订阅自动推送",
+    "type": "bool",
+    "default": false
+  },
+  "check_interval_minutes": {
+    "description": "订阅检查间隔（分钟）",
+    "type": "int",
+    "default": 600,
+    "min": 5,
+    "max": 1440
+  },
+  "max_subscriptions": {
+    "description": "每个会话最大订阅数",
+    "type": "int",
+    "default": 20,
+    "min": 1,
+    "max": 100
+  },
+  "access_mode": {
+    "description": "群聊访问控制模式",
+    "type": "string",
+    "default": "blacklist",
+    "options": ["all", "blacklist", "whitelist"]
+  },
+  "group_list": {
+    "description": "群号列表",
+    "type": "string",
+    "default": "",
+    "hint": "黑名单/白名单群号，英文逗号分隔"
+  }
+}

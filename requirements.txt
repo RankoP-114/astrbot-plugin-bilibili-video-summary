@@ -1,0 +1,4 @@
+aiohttp>=3.9.0
+yt-dlp>=2024.12.13
+Pillow>=10.0.0
+segno>=1.6.0
