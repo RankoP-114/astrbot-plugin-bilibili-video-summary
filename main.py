@@ -27,7 +27,7 @@ from .services.subscription import SubscriptionStore
 from .services.url_parser import extract_bvid, extract_mid, extract_video_url, is_bilibili_video_url
 
 
-PLUGIN_NAME = "astrbot_plugin_bililens"
+PLUGIN_NAME = "astrbot_plugin_bilibili_video_summary"
 
 
 @register(PLUGIN_NAME, "RankoKanzaki", "B站视频总结插件", "1.0.0")

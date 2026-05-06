@@ -14,10 +14,10 @@ if os.environ.get("LOCALAPPDATA"):
 
 
 DEFAULT_FONT_CANDIDATES = [
-    "/AstrBot/data/plugin_data/astrbot_plugin_bililens/fonts/HiraginoSansGB.ttc",
-    "/AstrBot/data/plugin_data/astrbot_plugin_bililens/fonts/NotoSansCJK-Regular.ttc",
-    "/AstrBot/data/plugin_data/astrbot_plugin_bililens/fonts/NotoSansCJKsc-Regular.otf",
-    "/AstrBot/data/plugin_data/astrbot_plugin_bililens/fonts/SourceHanSansCN-Regular.otf",
+    "/AstrBot/data/plugin_data/astrbot_plugin_bilibili_video_summary/fonts/HiraginoSansGB.ttc",
+    "/AstrBot/data/plugin_data/astrbot_plugin_bilibili_video_summary/fonts/NotoSansCJK-Regular.ttc",
+    "/AstrBot/data/plugin_data/astrbot_plugin_bilibili_video_summary/fonts/NotoSansCJKsc-Regular.otf",
+    "/AstrBot/data/plugin_data/astrbot_plugin_bilibili_video_summary/fonts/SourceHanSansCN-Regular.otf",
     "/System/Library/Fonts/PingFang.ttc",
     "/System/Library/Fonts/STHeiti Light.ttc",
     "/System/Library/Fonts/STHeiti Medium.ttc",

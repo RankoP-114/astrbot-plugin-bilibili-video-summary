@@ -72,14 +72,14 @@ Pillow 渲染中文需要中文字体。插件会自动尝试常见的 macOS、L
 当前 Docker 部署也可以把字体放到插件持久化数据目录：
 
 ```text
-/AstrBot/data/plugin_data/astrbot_plugin_bililens/fonts/HiraginoSansGB.ttc
+/AstrBot/data/plugin_data/astrbot_plugin_bilibili_video_summary/fonts/HiraginoSansGB.ttc
 ```
 
 也可以放 Noto CJK 或思源黑体：
 
 ```text
-/AstrBot/data/plugin_data/astrbot_plugin_bililens/fonts/NotoSansCJK-Regular.ttc
-/AstrBot/data/plugin_data/astrbot_plugin_bililens/fonts/SourceHanSansCN-Regular.otf
+/AstrBot/data/plugin_data/astrbot_plugin_bilibili_video_summary/fonts/NotoSansCJK-Regular.ttc
+/AstrBot/data/plugin_data/astrbot_plugin_bilibili_video_summary/fonts/SourceHanSansCN-Regular.otf
 ```
 
 插件会优先尝试这些持久化路径，仓库不会内置字体文件。
@@ -115,7 +115,7 @@ segno
 按 AstrBot 官方插件结构，将本目录放到：
 
 ```text
-AstrBot/data/plugins/astrbot_plugin_bililens
+AstrBot/data/plugins/astrbot_plugin_bilibili_video_summary
 ```
 
 然后在 AstrBot WebUI 的插件管理中重载/启用插件。

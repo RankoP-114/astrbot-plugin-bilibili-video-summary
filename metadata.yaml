@@ -1,4 +1,4 @@
-name: astrbot_plugin_bililens
+name: astrbot_plugin_bilibili_video_summary
 display_name: B站视频总结
 desc: B站视频总结插件，支持 B站字幕、必剪 ASR、OpenAI-compatible ASR 和 Pillow 图片卡片输出。
 version: v1.0.0

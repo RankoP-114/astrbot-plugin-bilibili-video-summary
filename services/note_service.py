@@ -73,7 +73,7 @@ class NoteService:
             self._cleanup_generated_files()
 
     async def render_note(self, markdown: str) -> str:
-        output_path = self.image_dir / f"bililens_{int(asyncio.get_running_loop().time() * 1000)}.png"
+        output_path = self.image_dir / f"bilibili_video_summary_{int(asyncio.get_running_loop().time() * 1000)}.png"
         rendered = await asyncio.to_thread(
             render_markdown_card,
             markdown,
