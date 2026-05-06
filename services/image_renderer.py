@@ -1,21 +1,61 @@
+import os
 import re
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
 
+_WINDOWS_FONT_DIRS = [
+    Path(os.environ.get("WINDIR", r"C:\Windows")) / "Fonts",
+    Path(os.environ.get("SystemRoot", r"C:\Windows")) / "Fonts",
+]
+if os.environ.get("LOCALAPPDATA"):
+    _WINDOWS_FONT_DIRS.append(Path(os.environ["LOCALAPPDATA"]) / "Microsoft" / "Windows" / "Fonts")
+
+
 DEFAULT_FONT_CANDIDATES = [
     "/AstrBot/data/plugin_data/astrbot_plugin_bililens/fonts/HiraginoSansGB.ttc",
     "/AstrBot/data/plugin_data/astrbot_plugin_bililens/fonts/NotoSansCJK-Regular.ttc",
+    "/AstrBot/data/plugin_data/astrbot_plugin_bililens/fonts/NotoSansCJKsc-Regular.otf",
+    "/AstrBot/data/plugin_data/astrbot_plugin_bililens/fonts/SourceHanSansCN-Regular.otf",
     "/System/Library/Fonts/PingFang.ttc",
     "/System/Library/Fonts/STHeiti Light.ttc",
     "/System/Library/Fonts/STHeiti Medium.ttc",
     "/System/Library/Fonts/Hiragino Sans GB.ttc",
     "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+    "/usr/share/fonts/opentype/noto/NotoSansCJKsc-Regular.otf",
+    "/usr/share/fonts/opentype/noto/NotoSansSC-Regular.otf",
     "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",
+    "/usr/share/fonts/truetype/noto/NotoSansCJKsc-Regular.otf",
+    "/usr/share/fonts/truetype/noto/NotoSansSC-Regular.otf",
+    "/usr/share/fonts/noto-cjk/NotoSansCJK-Regular.ttc",
+    "/usr/share/fonts/noto/NotoSansCJK-Regular.ttc",
+    "/usr/share/fonts/google-noto-cjk/NotoSansCJK-Regular.ttc",
     "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.otf",
+    "/usr/share/fonts/opentype/adobe-source-han-sans/SourceHanSansCN-Regular.otf",
+    "/usr/share/fonts/source-han-sans/SourceHanSansCN-Regular.otf",
+    "/usr/share/fonts/adobe-source-han-sans/SourceHanSansCN-Regular.otf",
     "/usr/share/fonts/truetype/wqy/wqy-microhei.ttc",
     "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc",
+    "/usr/share/fonts/truetype/arphic/uming.ttc",
+    "/usr/share/fonts/truetype/arphic/ukai.ttc",
+    "/usr/share/fonts/truetype/droid/DroidSansFallbackFull.ttf",
+    "/usr/share/fonts/TTF/wqy-microhei.ttc",
+    "/usr/share/fonts/TTF/wqy-zenhei.ttc",
+    "/usr/share/fonts/TTF/NotoSansCJK-Regular.ttc",
+] + [
+    str(font_dir / font_name)
+    for font_dir in _WINDOWS_FONT_DIRS
+    for font_name in (
+        "msyh.ttc",
+        "msyh.ttf",
+        "simsun.ttc",
+        "simhei.ttf",
+        "Deng.ttf",
+        "msjh.ttc",
+        "mingliu.ttc",
+        "simkai.ttf",
+    )
 ]
 
 
@@ -48,21 +88,25 @@ def render_markdown_card(
 
 
 def _load_fonts(font_path: str) -> dict[str, ImageFont.FreeTypeFont]:
-    selected = font_path if font_path and Path(font_path).exists() else ""
-    if not selected:
-        selected = next((path for path in DEFAULT_FONT_CANDIDATES if Path(path).exists()), "")
-    if not selected:
-        return {
-            "title": ImageFont.load_default(),
-            "h2": ImageFont.load_default(),
-            "body": ImageFont.load_default(),
-            "muted": ImageFont.load_default(),
-        }
+    candidates = [font_path] if font_path else []
+    candidates.extend(DEFAULT_FONT_CANDIDATES)
+    for candidate in candidates:
+        if not candidate or not Path(candidate).exists():
+            continue
+        try:
+            return {
+                "title": ImageFont.truetype(candidate, 46),
+                "h2": ImageFont.truetype(candidate, 34),
+                "body": ImageFont.truetype(candidate, 28),
+                "muted": ImageFont.truetype(candidate, 24),
+            }
+        except OSError:
+            continue
     return {
-        "title": ImageFont.truetype(selected, 46),
-        "h2": ImageFont.truetype(selected, 34),
-        "body": ImageFont.truetype(selected, 28),
-        "muted": ImageFont.truetype(selected, 24),
+        "title": ImageFont.load_default(),
+        "h2": ImageFont.load_default(),
+        "body": ImageFont.load_default(),
+        "muted": ImageFont.load_default(),
     }
 
 
