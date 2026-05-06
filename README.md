@@ -4,7 +4,7 @@ B站视频总结是一个 AstrBot B站视频总结插件。它参考常见的视
 
 `B站链接/BV号 -> 优先读取 B站字幕 -> 无字幕时下载音频并 ASR 转写 -> LLM 生成 Markdown -> Pillow 渲染图片 -> 回传聊天`
 
-图片渲染只依赖 Python 的 `Pillow`，不需要 `wkhtmltopdf`。
+图片渲染只依赖 Python 的 `Pillow`，不需要 `wkhtmltopdf`。默认会以 2 倍像素密度输出 PNG，并按二级标题分成 2 列板块，降低聊天软件二次压缩后的发糊感和长图感。
 生成的字幕缓存和总结图片会按 `generated_retention_hours` / `generated_max_files` 自动清理。
 
 ## 功能
@@ -83,6 +83,14 @@ Pillow 渲染中文需要中文字体。插件会自动尝试常见的 macOS、L
 ```
 
 插件会优先尝试这些持久化路径，仓库不会内置字体文件。
+
+## 图片清晰度
+
+`image_scale` 控制图片像素密度，默认 `2`。版式尺寸保持不变，但实际 PNG 像素会按倍率绘制，因此文字会比直接放大图片更清晰。
+
+`image_columns` 控制板块列数，默认 `2`。插件会按 Markdown 二级标题 `##` 分块排版，一行放 2 个板块；如果把 `image_width` 调到 `2200` 以上，可以尝试 `image_columns=3`。
+
+如果聊天平台对超大图片压缩很重，可以把 `image_width` 保持在 `1800`，只调整 `image_scale`；图片体积过大时再把 `image_scale` 调回 `1`。
 
 ## 系统依赖
 

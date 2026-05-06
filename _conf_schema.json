@@ -115,9 +115,25 @@
   "image_width": {
     "description": "总结图片宽度",
     "type": "int",
-    "default": 1400,
+    "default": 1800,
     "min": 900,
-    "max": 2200
+    "max": 2600
+  },
+  "image_scale": {
+    "description": "总结图片清晰度倍率",
+    "type": "int",
+    "default": 2,
+    "min": 1,
+    "max": 3,
+    "hint": "2 会以 2 倍像素密度绘制 PNG，聊天软件压缩后通常更清晰；图片过大时可调回 1"
+  },
+  "image_columns": {
+    "description": "总结图片板块列数",
+    "type": "int",
+    "default": 2,
+    "min": 1,
+    "max": 3,
+    "hint": "按 Markdown 二级标题分块排版；2 列适合默认宽度，宽度调到 2200 以上时可尝试 3 列"
   },
   "note_style": {
     "description": "总结风格",

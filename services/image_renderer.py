@@ -57,23 +57,29 @@ DEFAULT_FONT_CANDIDATES = [
         "simkai.ttf",
     )
 ]
+CLOSING_PUNCTUATION = set("，。！？；：、,.!?;:)]）】》")
 
 
 def render_markdown_card(
     markdown: str,
     output_path: str,
-    width: int = 1400,
+    width: int = 1800,
     font_path: str = "",
+    scale: int = 2,
+    columns: int = 2,
 ) -> str:
     output = Path(output_path)
     output.parent.mkdir(parents=True, exist_ok=True)
 
-    fonts = _load_fonts(font_path)
-    ops, height = _layout(markdown, width, fonts)
+    scale = max(1, min(int(scale or 1), 3))
+    canvas_width = width * scale
+    columns = max(1, min(int(columns or 1), 3))
+    fonts = _load_fonts(font_path, scale)
+    ops, height = _layout(markdown, canvas_width, fonts, scale, columns)
 
-    image = Image.new("RGB", (width, height), "#101418")
+    image = Image.new("RGB", (canvas_width, height), "#101418")
     draw = ImageDraw.Draw(image)
-    _draw_background(draw, width, height)
+    _draw_background(draw, canvas_width, height)
     for op in ops:
         kind = op["kind"]
         if kind == "text":
@@ -87,7 +93,7 @@ def render_markdown_card(
     return str(output)
 
 
-def _load_fonts(font_path: str) -> dict[str, ImageFont.FreeTypeFont]:
+def _load_fonts(font_path: str, scale: int = 1) -> dict[str, ImageFont.FreeTypeFont]:
     candidates = [font_path] if font_path else []
     candidates.extend(DEFAULT_FONT_CANDIDATES)
     for candidate in candidates:
@@ -95,10 +101,10 @@ def _load_fonts(font_path: str) -> dict[str, ImageFont.FreeTypeFont]:
             continue
         try:
             return {
-                "title": ImageFont.truetype(candidate, 46),
-                "h2": ImageFont.truetype(candidate, 34),
-                "body": ImageFont.truetype(candidate, 28),
-                "muted": ImageFont.truetype(candidate, 24),
+                "title": ImageFont.truetype(candidate, 46 * scale),
+                "h2": ImageFont.truetype(candidate, 34 * scale),
+                "body": ImageFont.truetype(candidate, 28 * scale),
+                "muted": ImageFont.truetype(candidate, 24 * scale),
             }
         except OSError:
             continue
@@ -110,97 +116,159 @@ def _load_fonts(font_path: str) -> dict[str, ImageFont.FreeTypeFont]:
     }
 
 
-def _layout(markdown: str, width: int, fonts: dict[str, ImageFont.FreeTypeFont]):
-    margin = 54
+def _layout(markdown: str, width: int, fonts: dict[str, ImageFont.FreeTypeFont], scale: int, columns: int):
+    margin = _px(54, scale)
     content_width = width - margin * 2
-    card_x = margin
-    card_w = content_width
-    y = 46
+    y = _px(46, scale)
     ops: list[dict] = []
-    dummy = Image.new("RGB", (width, 100))
+    dummy = Image.new("RGB", (width, _px(100, scale)))
     draw = ImageDraw.Draw(dummy)
 
     title = "B站视频总结"
     lines = [line.rstrip() for line in (markdown or "").splitlines()]
     if lines and lines[0].startswith("# "):
         title = _clean_inline(lines.pop(0)[2:].strip()) or title
+    sections = _parse_sections(lines)
 
-    title_lines = _wrap(draw, title, fonts["title"], content_width - 64)
-    ops.append({"kind": "rect", "box": (margin, y, width - margin, y + 132 + len(title_lines) * 52), "radius": 26, "fill": "#18202a"})
-    y += 34
+    title_lines = _wrap(draw, title, fonts["title"], content_width - _px(64, scale))
+    ops.append(
+        {
+            "kind": "rect",
+            "box": (margin, y, width - margin, y + _px(132, scale) + len(title_lines) * _px(52, scale)),
+            "radius": _px(26, scale),
+            "fill": "#18202a",
+        }
+    )
+    y += _px(34, scale)
     for line in title_lines:
-        ops.append({"kind": "text", "xy": (margin + 34, y), "text": line, "font": fonts["title"], "fill": "#f4f7fb"})
-        y += 56
-    ops.append({"kind": "line", "points": (margin + 34, y + 6, margin + 250, y + 6), "fill": "#34d399", "width": 5})
-    y += 62
+        ops.append({"kind": "text", "xy": (margin + _px(34, scale), y), "text": line, "font": fonts["title"], "fill": "#f4f7fb"})
+        y += _px(56, scale)
+    ops.append(
+        {
+            "kind": "line",
+            "points": (margin + _px(34, scale), y + _px(6, scale), margin + _px(250, scale), y + _px(6, scale)),
+            "fill": "#34d399",
+            "width": _px(5, scale),
+        }
+    )
+    y += _px(62, scale)
 
-    section_top = None
-    section_items: list[dict] = []
+    gap = _px(24, scale)
+    min_column_width = _px(520, scale)
+    while columns > 1 and (content_width - gap * (columns - 1)) // columns < min_column_width:
+        columns -= 1
+    card_w = (content_width - gap * (columns - 1)) // columns
 
-    def flush_section() -> None:
-        nonlocal section_top, section_items
-        if section_top is None:
-            return
-        bottom = y + 22
-        ops.insert(
-            len(ops) - len(section_items),
-            {"kind": "rect", "box": (card_x, section_top, card_x + card_w, bottom), "radius": 18, "fill": "#151b22", "outline": "#263241"},
-        )
-        section_top = None
-        section_items = []
+    for row_start in range(0, len(sections), columns):
+        row_sections = sections[row_start : row_start + columns]
+        row_layouts = []
+        row_height = 0
+        for index, section in enumerate(row_sections):
+            x = margin + index * (card_w + gap)
+            section_ops, section_height = _layout_section(section, x, y, card_w, draw, fonts, scale)
+            row_layouts.append((x, section_ops, section_height))
+            row_height = max(row_height, section_height)
+
+        for x, section_ops, section_height in row_layouts:
+            ops.append(
+                {
+                    "kind": "rect",
+                    "box": (x, y, x + card_w, y + row_height),
+                    "radius": _px(18, scale),
+                    "fill": "#151b22",
+                    "outline": "#263241",
+                }
+            )
+            ops.extend(section_ops)
+        y += row_height + gap
+
+    y += _px(44, scale)
+    ops.append({"kind": "text", "xy": (margin, y), "text": "Generated by B站视频总结", "font": fonts["muted"], "fill": "#66768a"})
+    y += _px(64, scale)
+    return ops, max(y, _px(360, scale))
+
+
+def _parse_sections(lines: list[str]) -> list[dict]:
+    sections: list[dict] = []
+    current: dict = {"title": "", "lines": []}
+
+    def flush() -> None:
+        if current["title"] or any(line.strip() for line in current["lines"]):
+            sections.append({"title": current["title"], "lines": list(current["lines"])})
 
     for raw in lines:
-        if not raw.strip():
-            y += 14
-            continue
-
         if raw.startswith("## "):
-            flush_section()
-            section_top = y
-            text = _clean_inline(raw[3:].strip())
-            y += 28
-            op = {"kind": "text", "xy": (margin + 34, y), "text": text, "font": fonts["h2"], "fill": "#7dd3fc"}
-            ops.append(op)
-            section_items.append(op)
-            y += 54
+            flush()
+            current = {"title": _clean_inline(raw[3:].strip()), "lines": []}
+            continue
+        current["lines"].append(raw)
+
+    flush()
+    if not sections:
+        sections.append({"title": "", "lines": ["暂无内容"]})
+    return sections
+
+
+def _layout_section(
+    section: dict,
+    x: int,
+    y: int,
+    width: int,
+    draw: ImageDraw.ImageDraw,
+    fonts: dict[str, ImageFont.FreeTypeFont],
+    scale: int,
+) -> tuple[list[dict], int]:
+    ops: list[dict] = []
+    padding_x = _px(30, scale)
+    padding_y = _px(26, scale)
+    text_width = width - padding_x * 2
+    cursor_y = y + padding_y
+
+    title = str(section.get("title", ""))
+    if title:
+        for line in _wrap(draw, title, fonts["h2"], text_width):
+            ops.append({"kind": "text", "xy": (x + padding_x, cursor_y), "text": line, "font": fonts["h2"], "fill": "#7dd3fc"})
+            cursor_y += _px(42, scale)
+        cursor_y += _px(14, scale)
+
+    for raw in section.get("lines", []):
+        raw = str(raw)
+        if not raw.strip():
+            cursor_y += _px(12, scale)
             continue
 
-        if section_top is None:
-            section_top = y
-            y += 28
+        text, font, fill = _format_line(raw, fonts)
+        for line in _wrap(draw, text, font, text_width):
+            ops.append({"kind": "text", "xy": (x + padding_x, cursor_y), "text": line, "font": font, "fill": fill})
+            cursor_y += _px(38, scale) if font == fonts["muted"] else _px(42, scale)
+        cursor_y += _px(8, scale)
 
-        indent = 34
-        fill = "#dbe4ee"
-        font = fonts["body"]
-        text = raw.strip()
-        prefix = ""
-        if text.startswith(">"):
-            prefix = "│ "
-            text = text.lstrip("> ").strip()
-            fill = "#a7b7c8"
-            font = fonts["muted"]
-        elif text.startswith(("- ", "* ")):
-            prefix = "• "
-            text = text[2:].strip()
-        elif re.match(r"^\d+\.\s+", text):
-            number, text = text.split(".", 1)
-            prefix = f"{number}. "
-            text = text.strip()
+    height = max(cursor_y - y + padding_y - _px(8, scale), _px(118, scale))
+    return ops, height
 
-        text = prefix + _clean_inline(text)
-        wrapped = _wrap(draw, text, font, content_width - 92)
-        for line in wrapped:
-            op = {"kind": "text", "xy": (margin + indent, y), "text": line, "font": font, "fill": fill}
-            ops.append(op)
-            section_items.append(op)
-            y += 38 if font == fonts["muted"] else 42
-        y += 8
 
-    flush_section()
-    y += 44
-    ops.append({"kind": "text", "xy": (margin, y), "text": "Generated by B站视频总结", "font": fonts["muted"], "fill": "#66768a"})
-    y += 64
-    return ops, max(y, 360)
+def _format_line(raw: str, fonts: dict[str, ImageFont.FreeTypeFont]) -> tuple[str, ImageFont.FreeTypeFont, str]:
+    fill = "#dbe4ee"
+    font = fonts["body"]
+    text = raw.strip()
+    prefix = ""
+    if text.startswith(">"):
+        prefix = "│ "
+        text = text.lstrip("> ").strip()
+        fill = "#a7b7c8"
+        font = fonts["muted"]
+    elif text.startswith(("- ", "* ")):
+        prefix = "• "
+        text = text[2:].strip()
+    elif re.match(r"^\d+\.\s+", text):
+        number, text = text.split(".", 1)
+        prefix = f"{number}. "
+        text = text.strip()
+    return prefix + _clean_inline(text), font, fill
+
+
+def _px(value: int, scale: int) -> int:
+    return int(value * scale)
 
 
 def _draw_background(draw: ImageDraw.ImageDraw, width: int, height: int) -> None:
@@ -229,7 +297,7 @@ def _wrap(draw: ImageDraw.ImageDraw, text: str, font, max_width: int) -> list[st
     current = ""
     for char in text:
         candidate = current + char
-        if _text_width(draw, candidate, font) <= max_width or not current:
+        if _text_width(draw, candidate, font) <= max_width or not current or char in CLOSING_PUNCTUATION:
             current = candidate
             continue
         lines.append(current.rstrip())

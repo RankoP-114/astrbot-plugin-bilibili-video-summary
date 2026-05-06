@@ -78,8 +78,10 @@ class NoteService:
             render_markdown_card,
             markdown,
             str(output_path),
-            int(self.config.get("image_width", 1400)),
+            int(self.config.get("image_width", 1800)),
             str(self.config.get("font_path", "")),
+            int(self.config.get("image_scale", 2)),
+            int(self.config.get("image_columns", 2)),
         )
         self._cleanup_generated_files()
         return rendered
